@@ -109,7 +109,7 @@ def main():
         valasztas = input("Művelet kiválasztása (1/2/3/4): ")
 
         if valasztas == "1":
-            szobaszam = int(input("Add meg a foglalandó szoba számát (pl.101): "))
+            szobaszam = int(input("Add meg a foglalandó szoba számát: "))
             datum_str = input("Add meg a foglalás dátumát (éééé-hh-nn): ")
             datum = datetime.datetime.strptime(datum_str, "%Y-%m-%d").date()
             foglalas_ar = szalloda.foglalas_by_szobaszam_and_datum(szobaszam, datum)
@@ -126,7 +126,7 @@ def main():
             if sikeres:
                 print("A foglalás lemondása sikeres.")
             else:
-                print("Nem sikerült a lemondás.")
+                print("Nem sikerült a lemondás. Ilyen szobaszámmal és időponttal nem létezik foglalás a rendszerben.")
 
         elif valasztas == "3":
             print("Foglalások listázása:")
@@ -137,7 +137,7 @@ def main():
             break
 
         else:
-            print("Érvénytelen választás. Kérlek válassz egy érvényes műveletet.")
+            print("Érvénytelen választás. Kérlek válasszon egy érvényes műveletet.")
 
 
 if __name__ == "__main__":

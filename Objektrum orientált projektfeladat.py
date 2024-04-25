@@ -137,7 +137,7 @@ def main():
             break
 
         else:
-            print("Érvénytelen választás. Kérlek válasszon egy érvényes műveletet.")
+            print("Érvénytelen választás. Kérem válasszon egy érvényes műveletet.")
 
 
 if __name__ == "__main__":

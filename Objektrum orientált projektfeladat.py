@@ -42,9 +42,6 @@ class Szalloda:
         self.foglalasok.append(foglalas)
         return foglalas.ar_szamitas()
 
-    def lemondas(self, foglalas):
-        self.foglalasok.remove(foglalas)
-
     def foglalas_by_szobaszam_and_datum(self, szobaszam, datum):
         today = datetime.date.today()
         if datum < today:
@@ -82,20 +79,26 @@ class Foglalas:
 
 def main():
     # Szálloda, szobák és foglalások inicializálása
-    szalloda = Szalloda(nev="Szuper Szálloda")
+    szalloda = Szalloda(nev="Szállj-oda Szálloda")
     egyagyas_szoba1 = EgyagyasSzoba(szobaszam=101)
     ketagyas_szoba1 = KetagyasSzoba(szobaszam=102)
     ketagyas_szoba2 = KetagyasSzoba(szobaszam=103)
     szalloda.add_szoba(egyagyas_szoba1)
     szalloda.add_szoba(ketagyas_szoba1)
     szalloda.add_szoba(ketagyas_szoba2)
-    szalloda.foglalas(egyagyas_szoba1, datetime.date(2024, 4, 15))
-    szalloda.foglalas(ketagyas_szoba1, datetime.date(2024, 4, 15))
-    szalloda.foglalas(ketagyas_szoba2, datetime.date(2024, 4, 16))
-    szalloda.foglalas(ketagyas_szoba1, datetime.date(2024, 4, 17))
-    szalloda.foglalas(ketagyas_szoba2, datetime.date(2024, 4, 18))
+    szalloda.foglalas(egyagyas_szoba1, datetime.date(2024, 5, 15))
+    szalloda.foglalas(egyagyas_szoba1, datetime.date(2024, 5, 16))
+    szalloda.foglalas(ketagyas_szoba1, datetime.date(2024, 5, 15))
+    szalloda.foglalas(ketagyas_szoba1, datetime.date(2024, 5, 17))
+    szalloda.foglalas(ketagyas_szoba2, datetime.date(2024, 5, 18))
 
     # Felhasználói interfész
+    print(f"Üdvözöl a {szalloda.nev}!")
+    print("\nVálaszható szobák:")
+    print("101-es szoba: Egyágyas szoba 1")
+    print("102-es szoba: Kétágyas szoba 1")
+    print("103-as szoba: Kétágyas szoba 2")
+
     while True:
         print("\nVálassz egy műveletet:")
         print("1. Foglalás")
@@ -106,14 +109,14 @@ def main():
         valasztas = input("Művelet kiválasztása (1/2/3/4): ")
 
         if valasztas == "1":
-            szobaszam = int(input("Add meg a foglalandó szoba számát: "))
+            szobaszam = int(input("Add meg a foglalandó szoba számát (pl.101): "))
             datum_str = input("Add meg a foglalás dátumát (éééé-hh-nn): ")
             datum = datetime.datetime.strptime(datum_str, "%Y-%m-%d").date()
             foglalas_ar = szalloda.foglalas_by_szobaszam_and_datum(szobaszam, datum)
             if isinstance(foglalas_ar, str):
                 print(foglalas_ar)
             else:
-                print(f"Foglalás sikeres! Ár: {foglalas_ar}")
+                print(f"Foglalás sikeres! Ár: {foglalas_ar} Ft")
 
         elif valasztas == "2":
             szobaszam = int(input("Add meg a lemondandó foglalás szoba számát: "))

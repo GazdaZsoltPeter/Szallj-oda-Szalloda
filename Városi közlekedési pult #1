@@ -1,0 +1,254 @@
+from abc import ABC, abstractmethod
+
+class Informaciok:
+    def __init__(self, utvonal, megallok, utasok, karbantartasi_allapot, uzemido):
+        self.utvonal = utvonal
+        self.megallok = megallok
+        self.utasok = utasok
+        self.karbantartasi_allapot = karbantartasi_allapot
+        self.uzemido = uzemido
+
+    def __str__(self):
+        return (f"Útvonal: {self.utvonal}\n"
+                f"Megállók: {self.megallok}\n"
+                f"Karbantartási állapot: {self.karbantartasi_allapot}\n"
+                f"Üzemidő: {self.uzemido}\n"
+                f"Utasok: {', '.join(self.utasok) if self.utasok else 'Nincsenek utasok'}")
+
+class Busz(Informaciok):
+    def __init__(self):
+        super().__init__(
+            utvonal="Kossuthtól Babitsig",
+            megallok="Kossuth, Petőfi, Jókai, Babits",
+            utasok=[],
+            karbantartasi_allapot="80%",
+            uzemido="8:00-8:48"
+        )
+    
+    def felszallas_nev_es_sorszam_alapjan(self,nev,sorszam,vasarlasok):
+        for vasarlas in vasarlasok:
+            if vasarlas.jegyek_es_berletek.nev == nev and vasarlas.jegyek_es_berletek.sorszam == sorszam:
+                self.utasok.append(vasarlas.jegyek_es_berletek.nev)
+                return True
+        return False
+    
+    def kossuth(self):
+        return "8:00, 8:10, 8:20, 8:30, 8:40"
+        
+    def petofi(self):
+        return "8:03, 8:13, 8:23, 8:33, 8:43"
+    
+    def jokai(self):
+        return "8:06, 8:16, 8:26, 8:36, 8:46"
+    
+    def babits(self):
+       return "8:08, 8:18, 8:28, 8:38, 8:48"
+
+class Villamos(Informaciok):
+    def __init__(self):
+        super().__init__(
+            utvonal="Babitstól Kossuthig",
+            megallok="Babits, Jókai, Petőfi, Kossuth",
+            utasok=[],
+            karbantartasi_allapot="75%",
+            uzemido="8:00-9:57"
+        )
+        
+    def felszallas_nev_es_sorszam_alapjan(self,nev,sorszam,vasarlasok):
+        for vasarlas in vasarlasok:
+            if vasarlas.jegyek_es_berletek.nev == nev and vasarlas.jegyek_es_berletek.sorszam == sorszam:
+                self.utasok.append(vasarlas.jegyek_es_berletek.nev)
+                return True
+        return False
+    
+    def kossuth(self):
+        return "8:00, 8:30, 9:00, 9:30"
+        
+    def petofi(self):
+        return "8:09, 8:39, 9:09, 9:39"
+    
+    def jokai(self):
+        return "8:18, 8:48, 9:18, 9:48"
+    
+    def babits(self):
+        return "8:27, 8:57, 9:27, 9:57"
+
+class Jegyek_es_Berletek(ABC):
+    def __init__(self,ar,sorszam,nev):
+        self.ar = ar
+        self.sorszam = sorszam
+        self.nev=nev
+        
+    @abstractmethod
+    def ar_szamitas(self):
+        pass
+
+class Jegyek(Jegyek_es_Berletek):
+    def __init__(self,sorszam,nev):
+        super().__init__(ar=350, sorszam=sorszam, nev=nev)
+    def ar_szamitas(self):
+        return self.ar
+
+class Berletek(Jegyek_es_Berletek):
+    def __init__(self,sorszam,nev):
+        super().__init__(ar=1000, sorszam=sorszam, nev=nev)
+    def ar_szamitas(self):
+        return self.ar
+
+class Jegyek_es_Berletek_Vasarlasa:
+    def __init__(self):
+        self.jegy_vagy_berlet=[]
+        self.vasarlasok=[]
+        
+    def add_jegyek_es_berletek(self,jegyek_es_berletek):
+        self.jegy_vagy_berlet.append(jegyek_es_berletek)
+    
+    def vasarlas(self,jegyek_es_berletek):
+        vasarlas=Vasarlas(jegyek_es_berletek)
+        self.vasarlasok.append(vasarlas)
+        return vasarlas.ar_szamitas()
+    
+    def vasarlas_nev_es_sorszam_alapjan(self,nev,sorszam):
+        for jegyek_es_berletek in self.jegy_vagy_berlet:
+            if jegyek_es_berletek.sorszam == sorszam:
+                vasarlas=Vasarlas(jegyek_es_berletek)
+                vasarlas.jegyek_es_berletek.nev=nev
+                self.vasarlasok.append(vasarlas)
+                return vasarlas.ar_szamitas()
+        return "A vásárlás nem sikeres, mert érvénytelen sorszám"
+    
+    def listaz_vasarlasok(self):
+        for vasarlas in self.vasarlasok:
+            print(f"Név: {vasarlas.jegyek_es_berletek.nev}, Sorszam: {vasarlas.jegyek_es_berletek.sorszam}")
+
+class Vasarlas:
+    def __init__(self,jegyek_es_berletek):
+        self.jegyek_es_berletek=jegyek_es_berletek
+    
+    def ar_szamitas(self):
+        return self.jegyek_es_berletek.ar_szamitas()
+            
+def main():
+    print(f"Üdvözöl a Városi Közlekedési Pult!")
+    
+    jegyek_es_berletek_vasarlasa=Jegyek_es_Berletek_Vasarlasa()
+    jegyek=Jegyek(sorszam=1, nev="")
+    berletek=Berletek(sorszam=2, nev="")
+    jegyek_es_berletek_vasarlasa.add_jegyek_es_berletek(jegyek)
+    jegyek_es_berletek_vasarlasa.add_jegyek_es_berletek(berletek)
+    busz=Busz()
+    villamos=Villamos()
+    
+    while True:
+        print("\nVálassz egy műveletet:")
+        print("1. Jármüvek információnak lekérdezése")
+        print("2. Jegy vagy bérlet vásárlása")
+        print("3. Vásárolt jegyek és bérletek megtekintése")
+        print("4. Felszállás egy járműre [Jegy vagy bérlet szükséges]")
+        print("5. Járművek menetrendjei")
+        print("6. Kilépés")
+        valasztas = input("Művelet kiválasztása (1/2/3/4/5/6): ")
+
+        if valasztas == "1":
+            while True:
+                print("\nVálassz egy jármüvet:")
+                print("1. Busz")
+                print("2. Villamos")
+                valasztas2 = input("Jármű kiválasztása (1/2): ")
+                if valasztas2 == "1":
+                    print(busz)
+                    break
+                elif valasztas2 == "2":
+                    print(villamos)
+                    break
+                else:
+                    print("Érvénytelen választás. Kérem válasszon egy érvényes műveletet.")
+                    
+        elif valasztas == "2":
+            nev = input("Adja meg a nevét: ")
+            print("\nVálasztható sorszámok:")
+            print("1-es sorszam: Jegy")
+            print("2-es sorszam: Bérlet")
+            sorszam = int(input("Adja meg a vásárolandó jegy vagy bérlet sorszámát: "))
+            vasarlas_ar=jegyek_es_berletek_vasarlasa.vasarlas_nev_es_sorszam_alapjan(nev,sorszam)
+            if isinstance(vasarlas_ar, str):
+                print(vasarlas_ar)
+            else:
+                print(f"A vásárlás sikeres! Ár: {vasarlas_ar} Ft")
+                
+        elif valasztas == "3":
+            print("Vásárolt jegyek és bérletek megtekintése:")
+            jegyek_es_berletek_vasarlasa.listaz_vasarlasok()
+            
+        elif valasztas == "4":
+            while True:
+                print("\nVálassz egy jármüvet:")
+                print("1. Busz")
+                print("2. Villamos")
+                valasztas2 = input("Jármű kiválasztása (1/2): ")
+                nev = input("Adja meg a nevét: ")
+                sorszam = int(input("Adja meg a vásárolt jegy vagy bérlet sorszámát: "))
+                if valasztas2 == "1":
+                    sikeres=busz.felszallas_nev_es_sorszam_alapjan(nev,sorszam,jegyek_es_berletek_vasarlasa.vasarlasok)
+                    if sikeres:
+                        print("A felszállás sikeres.")
+                    else:
+                        print("Nem sikerült a felszállás. Ilyen névvel és sorszámmal nem létezik jegy vagy bérlet a rendszerben.")
+                    break
+                elif valasztas2 == "2":
+                    sikeres=villamos.felszallas_nev_es_sorszam_alapjan(nev,sorszam,jegyek_es_berletek_vasarlasa.vasarlasok)
+                    if sikeres:
+                        print("A felszállás sikeres.")
+                    else:
+                        print("Nem sikerült a felszállás. Ilyen névvel és sorszámmal nem létezik jegy vagy bérlet a rendszerben.")
+                    break
+                else:
+                    print("Érvénytelen választás. Kérem válasszon egy érvényes műveletet.")
+                    
+        elif valasztas == "5":
+            while True:
+                print("\nVálassz egy jármüvet:")
+                print("1. Busz")
+                print("2. Villamos")
+                valasztas3 = input("Jármű kiválasztása (1/2): ")
+                if valasztas3 == "1":
+                    megallo=input("A megálló neve: ")
+                    if megallo == "Kossuth":
+                        print(busz.kossuth())
+                        break
+                    elif megallo == "Petőfi":
+                        print(busz.petofi())
+                        break
+                    elif megallo == "Jókai":
+                        print(busz.jokai())
+                        break
+                    elif megallo == "Babits":
+                        print(busz.babits())
+                        break
+                    else:
+                        print("Ehhez a járműhöz nem tartozik ilyen nevű megálló")
+                if  valasztas3 == "2":
+                    megallo=input("A megálló neve: ")
+                    if megallo == "Kossuth":
+                        print(villamos.kossuth())
+                        break
+                    elif megallo == "Petőfi":
+                        print(villamos.petofi())
+                        break
+                    elif megallo == "Jókai":
+                        print(villamos.jokai())
+                        break
+                    elif megallo == "Babits":
+                        print(villamos.babits())
+                        break
+                    else:
+                        print("Ehhez a járműhöz nem tartozik ilyen nevű megálló")
+
+        elif valasztas == "6":
+            print("Kilépés.")
+            break
+        else:
+            print("Érvénytelen választás. Kérem válasszon egy érvényes műveletet.")
+
+if __name__ == "__main__":
+    main()
